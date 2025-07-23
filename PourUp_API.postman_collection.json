@@ -1,0 +1,1193 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+		"name": "PourUp API",
+		"description": "Complete API collection for PourUp - Winery and Outlet Management System\n\n## Getting Started\n1. Import this collection into Postman\n2. Import the environment file (PourUp_Environment.postman_environment.json)\n3. Set your base URL and credentials in the environment\n4. Start with Authentication → Login to get your JWT token\n\n## Authentication\nMost endpoints require a Bearer token. The login request will automatically set the token in your environment.\n\n## Default Accounts\n- Super Admin: admin@pourup.com / admin123\n- Winery Admin: winery@pourup.com / winery123",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save token to environment",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.token) {",
+									"        pm.environment.set('jwt_token', response.data.token);",
+									"        pm.environment.set('user_id', response.data.user.id);",
+									"        pm.environment.set('user_role', response.data.user.role);",
+									"        console.log('Token saved to environment');",
+									"    }",
+									"}",
+									"",
+									"// Test response structure",
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has token', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data).to.have.property('token');",
+									"    pm.expect(response.data).to.have.property('user');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with email and password to get JWT token"
+					},
+					"response": []
+				},
+				{
+					"name": "Register User (Super Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"role\": \"winery_admin\",\n  \"phone_number\": \"+1234567890\",\n  \"date_of_birth\": \"1985-06-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user (Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get current user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"phone_number\": \"+1987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Update user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"current_password\": \"admin123\",\n  \"new_password\": \"newpassword123\",\n  \"confirm_password\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/change-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"change-password"
+							]
+						},
+						"description": "Change user password"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Refresh JWT token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout user (client-side token removal)"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for login, registration, and profile management"
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Get All Users (Super Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users?page=1&limit=10&role=winery_admin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "role",
+									"value": "winery_admin"
+								}
+							]
+						},
+						"description": "Get all users with pagination and filtering (Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Get user by ID (Super Admin or own profile)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Outlet Manager",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save outlet manager details",
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.manager) {",
+									"        pm.environment.set('outlet_manager_id', response.data.manager.id);",
+									"        pm.environment.set('outlet_manager_token', response.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"outlet_id\": \"{{outlet_id}}\",\n  \"first_name\": \"Mike\",\n  \"last_name\": \"Johnson\",\n  \"email\": \"mike.johnson@example.com\",\n  \"password\": \"password123\",\n  \"confirm_password\": \"password123\",\n  \"date_of_birth\": \"1990-03-20\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/outlet-manager",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"outlet-manager"
+							]
+						},
+						"description": "Create outlet manager for a specific outlet (Winery Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Michael\",\n  \"last_name\": \"Johnson\",\n  \"phone_number\": \"+1555123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Update user information"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate User (Super Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Deactivate user (Super Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "User management endpoints for creating and managing users"
+		},
+		{
+			"name": "Business Management",
+			"item": [
+				{
+					"name": "Get All Businesses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/businesses?page=1&limit=10&status=pending",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "approved"
+								}
+							]
+						},
+						"description": "Get all businesses (public endpoint with filtering)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Business by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/businesses/{{business_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses",
+								"{{business_id}}"
+							]
+						},
+						"description": "Get business details by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Business",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save business ID",
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.business) {",
+									"        pm.environment.set('business_id', response.data.business.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"business_name\": \"Sunset Valley Winery\",\n  \"legal_business_name\": \"Sunset Valley Winery LLC\",\n  \"phone_number\": \"+1234567890\",\n  \"business_email\": \"info@sunsetvalley.com\",\n  \"website_url\": \"https://sunsetvalley.com\",\n  \"description\": \"Premium winery specializing in organic wines from Napa Valley. Family-owned and operated since 1985.\",\n  \"primary_title\": \"Owner\",\n  \"job_title\": \"Head Winemaker\",\n  \"instagram_url\": \"https://instagram.com/sunsetvalley\",\n  \"facebook_url\": \"https://facebook.com/sunsetvalley\",\n  \"linkedin_url\": \"https://linkedin.com/company/sunsetvalley\",\n  \"yelp_url\": \"https://yelp.com/biz/sunsetvalley\",\n  \"logo_images\": [\"logo1.jpg\", \"logo2.jpg\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/businesses",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses"
+							]
+						},
+						"description": "Create new business (Winery Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Business",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Premium winery specializing in organic and biodynamic wines from Napa Valley. Family-owned and operated since 1985. Award-winning sustainable practices.\",\n  \"website_url\": \"https://sunsetvalleywinery.com\",\n  \"phone_number\": \"+1234567899\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/businesses/{{business_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses",
+								"{{business_id}}"
+							]
+						},
+						"description": "Update business information"
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Business (Super Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/businesses/{{business_id}}/approve",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses",
+								"{{business_id}}",
+								"approve"
+							]
+						},
+						"description": "Approve business (Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Business (Super Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/businesses/{{business_id}}/reject",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses",
+								"{{business_id}}",
+								"reject"
+							]
+						},
+						"description": "Reject business (Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pending Businesses (Super Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/businesses/pending/approval",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses",
+								"pending",
+								"approval"
+							]
+						},
+						"description": "Get businesses pending approval (Super Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Businesses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/businesses/my/businesses?status=pending",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"businesses",
+								"my",
+								"businesses"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "approved"
+								}
+							]
+						},
+						"description": "Get current user's businesses (Winery Admin)"
+					},
+					"response": []
+				}
+			],
+			"description": "Business management endpoints for creating and managing winery businesses"
+		},
+		{
+			"name": "Outlet Management",
+			"item": [
+				{
+					"name": "Get All Outlets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/outlets?page=1&limit=10&business_types=winery",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"outlets"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "business_types",
+									"value": "winery"
+								}
+							]
+						},
+						"description": "Get all outlets (public endpoint with filtering)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Outlet by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/outlets/{{outlet_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"outlets",
+								"{{outlet_id}}"
+							]
+						},
+						"description": "Get outlet details by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Outlet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save outlet ID",
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.outlet) {",
+									"        pm.environment.set('outlet_id', response.data.outlet.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"business_id\": \"{{business_id}}\",\n  \"outlet_name\": \"Main Tasting Room\",\n  \"location\": \"123 Wine Street, Napa, CA 94558, United States\",\n  \"ava_location\": \"Napa Valley AVA\",\n  \"instagram_url\": \"https://instagram.com/sunsetvalley_tasting\",\n  \"facebook_url\": \"https://facebook.com/sunsetvalley_tasting\",\n  \"business_types\": [\"winery\", \"tasting_room\"],\n  \"operation_hours\": {\n    \"monday\": {\n      \"start_time\": \"10:00\",\n      \"end_time\": \"18:00\",\n      \"is_closed\": false\n    },\n    \"tuesday\": {\n      \"start_time\": \"10:00\",\n      \"end_time\": \"18:00\",\n      \"is_closed\": false\n    },\n    \"wednesday\": {\n      \"start_time\": null,\n      \"end_time\": null,\n      \"is_closed\": true\n    },\n    \"thursday\": {\n      \"start_time\": \"10:00\",\n      \"end_time\": \"18:00\",\n      \"is_closed\": false\n    },\n    \"friday\": {\n      \"start_time\": \"10:00\",\n      \"end_time\": \"20:00\",\n      \"is_closed\": false\n    },\n    \"saturday\": {\n      \"start_time\": \"09:00\",\n      \"end_time\": \"20:00\",\n      \"is_closed\": false\n    },\n    \"sunday\": {\n      \"start_time\": \"11:00\",\n      \"end_time\": \"17:00\",\n      \"is_closed\": false\n    }\n  },\n  \"amenities\": [\"parking\", \"wheelchair_accessible\", \"restrooms\", \"gift_shop\"],\n  \"atmosphere\": [\"casual\", \"family_friendly\", \"romantic\"],\n  \"soil_type\": [\"clay\", \"limestone\", \"volcanic\"],\n  \"ownership\": [\"family_owned\", \"sustainable\"],\n  \"wine_production\": [\"organic\", \"biodynamic\", \"estate_grown\"],\n  \"images\": [\"outlet1.jpg\", \"outlet2.jpg\", \"outlet3.jpg\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/outlets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"outlets"
+							]
+						},
+						"description": "Create new outlet (Winery Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Outlet",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"outlet_name\": \"Premium Tasting Room & Events\",\n  \"amenities\": [\"parking\", \"wheelchair_accessible\", \"restrooms\", \"gift_shop\", \"event_space\"],\n  \"atmosphere\": [\"casual\", \"family_friendly\", \"romantic\", \"upscale\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/outlets/{{outlet_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"outlets",
+								"{{outlet_id}}"
+							]
+						},
+						"description": "Update outlet information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Outlets by Business",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/outlets/business/{{business_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"outlets",
+								"business",
+								"{{business_id}}"
+							]
+						},
+						"description": "Get all outlets for a specific business"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Outlets",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/outlets/my/outlets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"outlets",
+								"my",
+								"outlets"
+							]
+						},
+						"description": "Get current user's outlets (Winery Admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Assigned Outlets (Manager)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{outlet_manager_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/outlets/manager/assigned",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"outlets",
+								"manager",
+								"assigned"
+							]
+						},
+						"description": "Get outlets assigned to current outlet manager"
+					},
+					"response": []
+				}
+			],
+			"description": "Outlet management endpoints for creating and managing winery outlets"
+		},
+		{
+			"name": "Experience Management",
+			"item": [
+				{
+					"name": "Get All Experiences",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/experiences?page=1&limit=10&business_types=tasting_room&min_price=20&max_price=100",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"experiences"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "business_types",
+									"value": "tasting_room"
+								},
+								{
+									"key": "min_price",
+									"value": "20"
+								},
+								{
+									"key": "max_price",
+									"value": "100"
+								}
+							]
+						},
+						"description": "Get all experiences (public endpoint with filtering)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Experience by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/experiences/{{experience_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"experiences",
+								"{{experience_id}}"
+							]
+						},
+						"description": "Get experience details by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Experience",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save experience ID",
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.experience) {",
+									"        pm.environment.set('experience_id', response.data.experience.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{outlet_manager_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"outlet_id\": \"{{outlet_id}}\",\n  \"title\": \"Premium Wine Tasting Experience\",\n  \"business_types\": \"tasting_room\",\n  \"price_per_person\": 45.00,\n  \"description\": \"Enjoy a guided tasting of our premium wines paired with artisan cheeses. Learn about our winemaking process and the unique terroir of Napa Valley.\",\n  \"images\": [\"experience1.jpg\", \"experience2.jpg\", \"experience3.jpg\"],\n  \"menu_item_title\": \"Artisan Cheese & Charcuterie Board\",\n  \"menu_item_description\": \"Selection of local artisan cheeses, cured meats, and seasonal accompaniments perfectly paired with our wines\",\n  \"time_slots\": [\n    {\n      \"start_time\": \"10:00\",\n      \"end_time\": \"11:30\",\n      \"max_party_size\": 8,\n      \"is_available\": true\n    },\n    {\n      \"start_time\": \"12:00\",\n      \"end_time\": \"13:30\",\n      \"max_party_size\": 10,\n      \"is_available\": true\n    },\n    {\n      \"start_time\": \"14:00\",\n      \"end_time\": \"15:30\",\n      \"max_party_size\": 12,\n      \"is_available\": true\n    },\n    {\n      \"start_time\": \"16:00\",\n      \"end_time\": \"17:30\",\n      \"max_party_size\": 6,\n      \"is_available\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/experiences",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"experiences"
+							]
+						},
+						"description": "Create new experience (Outlet Manager only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Experience",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{outlet_manager_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Premium Wine Tasting & Food Pairing Experience\",\n  \"price_per_person\": 55.00,\n  \"description\": \"Enhanced guided tasting of our premium wines paired with artisan cheeses and locally sourced small plates. Learn about our winemaking process, vineyard practices, and the unique terroir of Napa Valley.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/experiences/{{experience_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"experiences",
+								"{{experience_id}}"
+							]
+						},
+						"description": "Update experience information"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Time Slots",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{outlet_manager_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_slots\": [\n    {\n      \"start_time\": \"09:30\",\n      \"end_time\": \"11:00\",\n      \"max_party_size\": 8,\n      \"is_available\": true\n    },\n    {\n      \"start_time\": \"11:30\",\n      \"end_time\": \"13:00\",\n      \"max_party_size\": 10,\n      \"is_available\": true\n    },\n    {\n      \"start_time\": \"13:30\",\n      \"end_time\": \"15:00\",\n      \"max_party_size\": 12,\n      \"is_available\": true\n    },\n    {\n      \"start_time\": \"15:30\",\n      \"end_time\": \"17:00\",\n      \"max_party_size\": 6,\n      \"is_available\": true\n    },\n    {\n      \"start_time\": \"17:30\",\n      \"end_time\": \"19:00\",\n      \"max_party_size\": 8,\n      \"is_available\": false\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/experiences/{{experience_id}}/time-slots",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"experiences",
+								"{{experience_id}}",
+								"time-slots"
+							]
+						},
+						"description": "Update time slots for an experience"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Experiences by Outlet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/experiences/outlet/{{outlet_id}}?business_types=tasting_room",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"experiences",
+								"outlet",
+								"{{outlet_id}}"
+							],
+							"query": [
+								{
+									"key": "business_types",
+									"value": "tasting_room"
+								}
+							]
+						},
+						"description": "Get all experiences for a specific outlet"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Experiences (Manager)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{outlet_manager_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/experiences/my/experiences",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"experiences",
+								"my",
+								"experiences"
+							]
+						},
+						"description": "Get current outlet manager's experiences"
+					},
+					"response": []
+				}
+			],
+			"description": "Experience management endpoints for creating and managing outlet experiences"
+		},
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Check API health status"
+					},
+					"response": []
+				}
+			],
+			"description": "System utility endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set base URL if not defined",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://localhost:3000');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"pm.test('Response time is reasonable', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Response has correct Content-Type', function () {",
+					"    if (pm.response.headers.get('Content-Type')) {",
+					"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"    }",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+} 

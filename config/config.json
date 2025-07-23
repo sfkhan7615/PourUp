@@ -1,0 +1,11 @@
+{
+  "_comment": "This file is not used - database configuration is handled in src/config/database.js",
+  "development": {
+    "username": "root",
+    "password": null,
+    "database": "pourup_db",
+    "host": "localhost",
+    "port": 3306,
+    "dialect": "mysql"
+  }
+} 
