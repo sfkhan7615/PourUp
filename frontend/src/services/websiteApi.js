@@ -8,7 +8,9 @@ const websiteApi = axios.create({
   baseURL: `${API_BASE_URL}/website`,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true'
   },
+  withCredentials: true
 });
 
 // Request interceptor to add auth token for website users
