@@ -26,7 +26,7 @@ app.use(helmet({
 
 app.use(cors({
   origin: [
-    'https://e06228f3ad0d.ngrok-free.app',
+    'https://6930b3a2fd27.ngrok-free.app',
     'http://localhost:3001',
     'http://localhost:3000'
   ],

@@ -60,7 +60,7 @@ if (!fs.existsSync(faviconPath)) {
 
 // Verify backend connection
 console.log('\n🔗 Checking backend connection...');
-const backendUrl = process.env.REACT_APP_API_URL || 'https://e06228f3ad0d.ngrok-free.app/api';
+const backendUrl = process.env.REACT_APP_API_URL || 'https://6930b3a2fd27.ngrok-free.app/api';
 
 try {
   const { execSync } = require('child_process');

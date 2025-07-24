@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://e06228f3ad0d.ngrok-free.app/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://6930b3a2fd27.ngrok-free.app/api';
 
 // Create axios instance
 const api = axios.create({

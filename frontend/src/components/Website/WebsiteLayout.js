@@ -50,7 +50,9 @@ const WebsiteLayout = () => {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
       {/* Website Header */}
-      <AppBar position="static" sx={{ backgroundColor: '#722F37' }}>
+      <AppBar position="static" sx={{ 
+        background: 'linear-gradient(90deg, #FF720D 0%, #A52008 50%, #531004 100%)'
+      }}>
         <Container maxWidth="lg">
           <Toolbar sx={{ justifyContent: 'space-between' }}>
             {/* Logo and Navigation */}
@@ -167,7 +169,7 @@ const WebsiteLayout = () => {
       <Box 
         component="footer" 
         sx={{ 
-          backgroundColor: '#722F37', 
+          background: 'linear-gradient(90deg, #FF720D 0%, #A52008 50%, #531004 100%)', 
           color: 'white', 
           py: 3, 
           mt: 'auto' 
